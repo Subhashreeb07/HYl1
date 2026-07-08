@@ -1,0 +1,1 @@
+-- No demo data - all facilities created through admin UI
