@@ -8,10 +8,10 @@ import { AdminFormBuilderPageComponent } from './features/admin/pages/admin-form
 import { AdminNotificationsPageComponent } from './features/admin/pages/admin-notifications-page.component';
 import { AdminReportsPageComponent } from './features/admin/pages/admin-reports-page.component';
 import { AdminRulesPageComponent } from './features/admin/pages/admin-rules-page.component';
-import { AdminSettingsPageComponent } from './features/admin/pages/admin-settings-page.component';
 import { BookingDetailComponent } from './features/employee/booking-detail.component';
 import { BookingHistoryComponent } from './features/employee/booking-history.component';
 import { DashboardComponent } from './features/employee/dashboard.component';
+import { EmployeePortalShellComponent } from './features/employee/employee-portal-shell.component';
 import { FacilityBookingComponent } from './features/employee/facility-booking.component';
 import { InvitationsComponent } from './features/employee/invitations.component';
 import { LandingRedirectComponent } from './features/employee/landing-redirect.component';
@@ -27,11 +27,6 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent
-  },
-  {
-    path: 'employee/dashboard',
-    canActivate: [authGuard],
-    component: DashboardComponent
   },
   {
     path: 'admin',
@@ -63,10 +58,6 @@ export const routes: Routes = [
         component: AdminNotificationsPageComponent
       },
       {
-        path: 'settings',
-        component: AdminSettingsPageComponent
-      },
-      {
         path: '',
         pathMatch: 'full',
         redirectTo: 'dashboard'
@@ -74,29 +65,40 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'employee/facility/:facilityId/book',
+    path: 'employee',
     canActivate: [authGuard],
-    component: FacilityBookingComponent
-  },
-  {
-    path: 'employee/history',
-    canActivate: [authGuard],
-    component: BookingHistoryComponent
-  },
-  {
-    path: 'employee/invitations',
-    canActivate: [authGuard],
-    component: InvitationsComponent
-  },
-  {
-    path: 'employee/profile',
-    canActivate: [authGuard],
-    component: ProfileComponent
-  },
-  {
-    path: 'employee/bookings/:bookingId',
-    canActivate: [authGuard],
-    component: BookingDetailComponent
+    component: EmployeePortalShellComponent,
+    children: [
+      {
+        path: 'dashboard',
+        component: DashboardComponent
+      },
+      {
+        path: 'facility/:facilityId/book',
+        component: FacilityBookingComponent
+      },
+      {
+        path: 'history',
+        component: BookingHistoryComponent
+      },
+      {
+        path: 'invitations',
+        component: InvitationsComponent
+      },
+      {
+        path: 'profile',
+        component: ProfileComponent
+      },
+      {
+        path: 'bookings/:bookingId',
+        component: BookingDetailComponent
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard'
+      }
+    ]
   },
   {
     path: '**',

@@ -32,9 +32,61 @@ import { ToastService } from '../../../core/services/toast.service';
           <div class="flex flex-wrap gap-2">
             <button mat-stroked-button (click)="createTemplate()"><mat-icon>add</mat-icon>Create Template</button>
             <button mat-stroked-button (click)="testNotification()"><mat-icon>science</mat-icon>Test Notification</button>
+            <button mat-stroked-button (click)="previewBroadcast()"><mat-icon>visibility</mat-icon>Preview Audience</button>
+            <button mat-flat-button color="accent" (click)="sendBroadcast()"><mat-icon>campaign</mat-icon>Send Broadcast</button>
             <button mat-flat-button color="primary" (click)="exportHistory()"><mat-icon>download</mat-icon>Export History</button>
           </div>
         </div>
+      </section>
+
+      <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-slate-900">Send Broadcast</h3>
+          <span class="text-xs text-slate-500">Targeted employee notification campaign</span>
+        </div>
+
+        <form [formGroup]="broadcastForm" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <label class="admin-field">Type
+            <select class="admin-input" formControlName="notificationType">
+              <option *ngFor="let type of notificationTypes" [value]="type.value">{{ type.label }}</option>
+            </select>
+          </label>
+
+          <label class="admin-field">Channels
+            <mat-select formControlName="channels" multiple>
+              <mat-option *ngFor="let channel of channels" [value]="channel">{{ channel }}</mat-option>
+            </mat-select>
+          </label>
+
+          <label class="admin-field">Location
+            <input class="admin-input" formControlName="location" placeholder="HYDERABAD / KOLKATA / ALL" />
+          </label>
+
+          <label class="admin-field">Work Mode
+            <input class="admin-input" formControlName="workMode" placeholder="HYBRID / OFFICE / ALL" />
+          </label>
+
+          <label class="admin-field md:col-span-2 xl:col-span-4">Employee IDs (comma separated, optional)
+            <input class="admin-input" formControlName="employeeIdsCsv" placeholder="EMP001,EMP002" />
+          </label>
+
+          <label class="admin-field md:col-span-2 xl:col-span-4">Subject
+            <input class="admin-input" formControlName="subject" />
+          </label>
+
+          <label class="admin-field md:col-span-2 xl:col-span-4">Message Body
+            <textarea class="admin-input" rows="4" formControlName="messageBody"></textarea>
+          </label>
+
+          <label class="admin-field">Active Employees Only
+            <select class="admin-input" formControlName="activeOnly">
+              <option [ngValue]="true">Yes</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </label>
+        </form>
+
+        <p *ngIf="broadcastSummary()" class="mt-3 rounded-lg bg-slate-100 p-3 text-sm text-slate-700">{{ broadcastSummary() }}</p>
       </section>
 
       <section class="rounded-2xl bg-white p-5 shadow-sm">
@@ -318,6 +370,7 @@ export class AdminNotificationsPageComponent implements OnInit {
   readonly historyPageSize = signal(10);
   readonly selectedTemplateId = signal<number | null>(null);
   readonly templatePreview = signal('');
+  readonly broadcastSummary = signal('');
 
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.historyTotal() / this.historyPageSize())));
 
@@ -344,6 +397,18 @@ export class AdminNotificationsPageComponent implements OnInit {
     status: [''],
     channel: [''],
     date: ['']
+  });
+
+  readonly broadcastForm = this.fb.group({
+    notificationType: ['SYSTEM_ANNOUNCEMENT' as NotificationTemplateType, Validators.required],
+    channels: [['IN_APP'] as NotificationChannel[], Validators.required],
+    subject: ['Announcement', Validators.required],
+    messageBody: ['Hello {{employeeName}}, please check your updates.', Validators.required],
+    employeeIdsCsv: [''],
+    location: ['ALL'],
+    workMode: ['ALL'],
+    preference: ['ALL'],
+    activeOnly: [true, Validators.required]
   });
 
   constructor(
@@ -514,24 +579,62 @@ export class AdminNotificationsPageComponent implements OnInit {
       return;
     }
 
+    const testEmployeeId = this.resolveTestEmployeeId();
+
     try {
       const response = await firstValueFrom(
         this.adminApi.testNotification({
           templateId,
-          employeeId: '',
+          employeeId: testEmployeeId,
           channels: this.templateForm.value.channels ?? ['IN_APP'],
           placeholders: {
-            employeeName: '',
-            facilityName: '',
-            bookingDate: '',
-            deadlineTime: '',
-            office: ''
+            employeeName: 'Employee',
+            facilityName: 'Facility',
+            bookingDate: new Date().toISOString().slice(0, 10),
+            deadlineTime: '17:00',
+            office: 'HYDERABAD'
           }
         })
       );
       this.toastService.show(response.message || 'Test notification submitted', response.success ? 'success' : 'info');
+      if (response.preview?.body) {
+        this.templatePreview.set(response.preview.body);
+      }
     } catch (error: any) {
       this.toastService.show(error?.error?.message ?? 'Failed to test notification', 'error');
+    }
+  }
+
+  async previewBroadcast(): Promise<void> {
+    if (this.broadcastForm.invalid) {
+      this.toastService.show('Fill required broadcast fields', 'error');
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(this.adminApi.sendNotificationBroadcast(this.buildBroadcastPayload(true)));
+      this.broadcastSummary.set(
+        `Preview: ${response.matchedEmployees} employees match. Sample: ${response.sampleEmployeeIds.join(', ') || 'none'}`
+      );
+      this.toastService.show(response.message || 'Audience preview generated', 'info');
+    } catch (error: any) {
+      this.toastService.show(error?.error?.message ?? 'Failed to preview broadcast audience', 'error');
+    }
+  }
+
+  async sendBroadcast(): Promise<void> {
+    if (this.broadcastForm.invalid) {
+      this.toastService.show('Fill required broadcast fields', 'error');
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(this.adminApi.sendNotificationBroadcast(this.buildBroadcastPayload(false)));
+      this.broadcastSummary.set(`Queued ${response.notificationsCreated} notifications for ${response.matchedEmployees} employees.`);
+      this.toastService.show(response.message || 'Broadcast queued', 'success');
+      await this.loadHistory(1);
+    } catch (error: any) {
+      this.toastService.show(error?.error?.message ?? 'Failed to send broadcast', 'error');
     }
   }
 
@@ -644,5 +747,44 @@ export class AdminNotificationsPageComponent implements OnInit {
       copy[idx] = saved;
       return copy;
     });
+  }
+
+  private buildBroadcastPayload(dryRun: boolean) {
+    const raw = this.broadcastForm.getRawValue();
+    const employeeIds = (raw.employeeIdsCsv ?? '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0);
+
+    return {
+      notificationType: raw.notificationType ?? 'SYSTEM_ANNOUNCEMENT',
+      channels: raw.channels ?? ['IN_APP'],
+      subject: raw.subject ?? 'Announcement',
+      messageBody: raw.messageBody ?? '',
+      employeeIds: employeeIds.length > 0 ? employeeIds : undefined,
+      location: raw.location || 'ALL',
+      workMode: raw.workMode || 'ALL',
+      preference: raw.preference || 'ALL',
+      activeOnly: raw.activeOnly !== false,
+      dryRun
+    };
+  }
+
+  private resolveTestEmployeeId(): string {
+    const fromBroadcast = (this.broadcastForm.value.employeeIdsCsv ?? '')
+      .split(',')
+      .map((value) => value.trim())
+      .find((value) => value.length > 0);
+
+    if (fromBroadcast) {
+      return fromBroadcast;
+    }
+
+    const fromHistory = this.historyItems().find((item) => item.employeeId && item.employeeId.trim().length > 0)?.employeeId;
+    if (fromHistory) {
+      return fromHistory;
+    }
+
+    return 'EMP001';
   }
 }

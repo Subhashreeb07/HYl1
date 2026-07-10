@@ -144,6 +144,10 @@ export interface BookingFieldInput {
 export interface SubmitBookingResponse {
   bookingId: number;
   status: string;
+  bookingDate?: string;
+  createdAt?: string;
+  idempotentReplay?: boolean;
+  message?: string;
 }
 
 export interface BookingHistoryItem {

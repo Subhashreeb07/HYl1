@@ -154,7 +154,7 @@ public final class NotificationDtos {
 
     public record TestNotificationRequest(
             @NotNull Long templateId,
-            @NotBlank String employeeId,
+            String employeeId,
             @NotNull List<@NotBlank String> channels,
             Map<String, String> placeholders
     ) {

@@ -12,13 +12,18 @@ import { ToastService } from '../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto max-w-6xl rounded-3xl bg-[#f7f5f3] p-5 shadow-lg md:p-7" *ngIf="profile() as p">
-      <div class="flex items-center justify-between">
-        <h2 class="text-3xl font-bold text-[#111827]">Profile</h2>
-        <a routerLink="/employee/dashboard" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-white">Home</a>
-      </div>
+    <section class="mx-auto max-w-6xl space-y-5" *ngIf="profile() as p">
+      <header class="portal-panel px-6 py-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Employee Identity</p>
+            <h2 class="mt-1 text-3xl font-bold text-[#111827]">Profile</h2>
+          </div>
+          <a routerLink="/employee/dashboard" class="satori-secondary">Home</a>
+        </div>
+      </header>
 
-      <div class="mt-4 rounded-2xl bg-white p-5">
+      <div class="portal-panel p-5 md:p-6">
         <p class="text-sm text-[#6b7280]">Employee ID</p>
         <p class="text-xl font-semibold text-[#111827]">{{ p.employeeId }}</p>
         <p class="mt-3 text-sm text-[#6b7280]">Name</p>
@@ -27,25 +32,25 @@ import { ToastService } from '../../core/services/toast.service';
         <p class="text-lg text-[#111827]">{{ p.email }}</p>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-xl bg-[#faf8f6] p-3">
+          <div class="rounded-2xl bg-[#f8fbff] p-4">
             <p class="text-xs uppercase text-[#6b7280]">Department</p>
             <p class="font-semibold text-[#111827]">{{ p.department }}</p>
           </div>
-          <div class="rounded-xl bg-[#faf8f6] p-3">
+          <div class="rounded-2xl bg-[#f8fbff] p-4">
             <p class="text-xs uppercase text-[#6b7280]">Location</p>
             <p class="font-semibold text-[#111827]">{{ p.location }}</p>
           </div>
-          <div class="rounded-xl bg-[#faf8f6] p-3">
+          <div class="rounded-2xl bg-[#f8fbff] p-4">
             <p class="text-xs uppercase text-[#6b7280]">Total Bookings</p>
             <p class="font-semibold text-[#111827]">{{ p.totalBookings }}</p>
           </div>
-          <div class="rounded-xl bg-[#faf8f6] p-3">
+          <div class="rounded-2xl bg-[#f8fbff] p-4">
             <p class="text-xs uppercase text-[#6b7280]">Active Bookings</p>
             <p class="font-semibold text-[#111827]">{{ p.activeBookings }}</p>
           </div>
         </div>
 
-        <button class="mt-5 rounded-xl bg-[#9a562d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#824923]" (click)="logout()">
+        <button class="mt-5 rounded-full bg-[#183b63] px-4 py-2 text-sm font-semibold text-white hover:bg-[#11233f]" (click)="logout()">
           Logout
         </button>
       </div>

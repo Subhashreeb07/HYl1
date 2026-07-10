@@ -3,6 +3,7 @@ C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy
 C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\controller\NotificationControllerIntegrationTest.java
 C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\controller\ReportControllerIntegrationTest.java
 C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\HyBackendApplicationTests.java
+C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\PostgresIntegrationTestSupport.java
 C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\serviceimpl\BookingServiceImplIntegrationTest.java
 C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\serviceimpl\FacilityServiceImplIntegrationTest.java
 C:\Users\sb\Downloads\hy-backend\hy-backend\backend\src\test\java\com\example\hy_backend\serviceimpl\NotificationServiceImplTest.java

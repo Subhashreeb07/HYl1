@@ -1,5 +1,6 @@
 package com.example.hy_backend.serviceimpl;
 
+import com.example.hy_backend.PostgresIntegrationTestSupport;
 import com.example.hy_backend.dto.EmployeeDtos;
 import com.example.hy_backend.dto.FacilityDtos;
 import com.example.hy_backend.model.Facility;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class FacilityServiceImplIntegrationTest {
+class FacilityServiceImplIntegrationTest extends PostgresIntegrationTestSupport {
 
     @Autowired
     private FacilityService facilityService;

@@ -18,13 +18,14 @@ import { ToastService } from '../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, DynamicFieldRendererComponent],
   template: `
-    <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg" *ngIf="spec() as data">
+    <section class="portal-panel p-6 shadow-none" *ngIf="spec() as data">
       <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-2xl font-bold text-slate-900">{{ data.facilityName }}</h2>
-          <p class="text-sm text-slate-600">Complete the form and submit booking.</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Facility Booking</p>
+          <h2 class="mt-1 text-2xl font-bold text-slate-900">{{ data.facilityName }}</h2>
+          <p class="text-sm text-slate-600">Complete the form and submit your request through the Hyland employee portal.</p>
         </div>
-        <a routerLink="/employee/dashboard" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">Back</a>
+        <a routerLink="/employee/dashboard" class="satori-secondary">Back</a>
       </div>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="grid gap-4 md:grid-cols-2">
@@ -33,7 +34,7 @@ import { ToastService } from '../../core/services/toast.service';
         </ng-container>
 
         <div class="md:col-span-2 mt-2 flex items-center gap-3">
-          <button type="submit" class="rounded-xl bg-brand-700 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-900">Submit Booking</button>
+          <button type="submit" class="rounded-full bg-[#183b63] px-5 py-2 text-sm font-semibold text-white hover:bg-[#11233f]">Submit Booking</button>
           <span *ngIf="message()" class="text-sm font-medium text-emerald-700">{{ message() }}</span>
           <span *ngIf="error()" class="text-sm font-medium text-rose-700">{{ error() }}</span>
         </div>
@@ -125,8 +126,11 @@ export class FacilityBookingComponent implements OnInit {
       })
       .subscribe({
         next: (result) => {
-          this.message.set(`Booking confirmed with id #${result.bookingId}`);
-          this.toastService.show(`Booking confirmed with id #${result.bookingId}`, 'success');
+          const successMessage = result.message?.trim().length
+            ? `${result.message} (#${result.bookingId})`
+            : `Booking confirmed with id #${result.bookingId}`;
+          this.message.set(successMessage);
+          this.toastService.show(successMessage, 'success');
           this.router.navigate(['/employee/bookings', result.bookingId]);
         },
         error: (err) => {

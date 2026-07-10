@@ -46,7 +46,8 @@ The app provides a single place for employees to:
 - Java 21 + Spring Boot 3.5
 - Maven Wrapper
 - Spring Data JPA
-- H2 (default local runtime)
+- PostgreSQL (default local runtime)
+- Embedded PostgreSQL for Spring Boot integration tests
 - OpenAPI / Swagger
 
 ## Project Structure
@@ -70,6 +71,8 @@ Windows PowerShell:
 
 ```powershell
 Set-Location backend
+Copy-Item .env.example .env -ErrorAction SilentlyContinue
+docker compose -f docker-compose.postgres.yml up -d
 .\mvnw.cmd test
 .\mvnw.cmd spring-boot:run
 ```
@@ -82,14 +85,20 @@ Swagger UI:
 
 - http://localhost:8080/swagger-ui.html
 
-### 1b. Backend with PostgreSQL
+Notes:
+
+- The backend now defaults to the `postgres` Spring profile.
+- `spring-boot:run` and the `local` profile both use `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` from your environment if you set them, otherwise they fall back to the defaults in the PostgreSQL property files.
+- The frontend does not connect to PostgreSQL directly; it uses the backend API, so this backend database setup covers the full app.
+
+### 1b. Backend with explicit PostgreSQL environment
 
 Windows PowerShell:
 
 ```powershell
 Set-Location backend
+Copy-Item .env.example .env -ErrorAction SilentlyContinue
 docker compose -f docker-compose.postgres.yml up -d
-$env:SPRING_PROFILES_ACTIVE = "postgres"
 $env:DB_URL = "jdbc:postgresql://localhost:5432/hyhub"
 $env:DB_USERNAME = "hyhub_app"
 $env:DB_PASSWORD = "hyhub_app"
@@ -99,6 +108,19 @@ $env:DB_PASSWORD = "hyhub_app"
 Details:
 
 - docs/postgresql-integration.md
+
+### 1c. Backend with explicit local PostgreSQL profile
+
+```powershell
+Set-Location backend
+$env:SPRING_PROFILES_ACTIVE = "local"
+docker compose -f docker-compose.postgres.yml up -d
+.\mvnw.cmd spring-boot:run
+```
+
+Tests:
+
+- `./mvnw test` now runs Spring Boot integration tests against embedded PostgreSQL instead of H2, so test SQL behavior stays much closer to production.
 
 ### 2. Frontend Setup
 

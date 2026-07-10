@@ -1,5 +1,6 @@
 package com.example.hy_backend.controller;
 
+import com.example.hy_backend.PostgresIntegrationTestSupport;
 import com.example.hy_backend.model.Facility;
 import com.example.hy_backend.model.FieldDefinition;
 import com.example.hy_backend.model.FieldOption;
@@ -21,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class FacilityControllerSpecificationIntegrationTest {
+class FacilityControllerSpecificationIntegrationTest extends PostgresIntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;

@@ -29,11 +29,18 @@ import { ToastService } from '../../../core/services/toast.service';
           <button class="satori-primary" (click)="loadSummary()">Load Daily Summary</button>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-3" *ngIf="summary() as s">
+      <div class="grid gap-3 md:grid-cols-3" *ngIf="summary() as s; else noSummary">
           <article class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Today's Bookings</p><p class="text-xl font-bold">{{ s.totalBookings }}</p></article>
-          <article class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Most Popular Facility</p><p class="text-xl font-bold">Lunch</p></article>
-          <article class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Cancellation Rate</p><p class="text-xl font-bold">{{ s.cancellationRate }}%</p></article>
+          <article class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Confirmed</p><p class="text-xl font-bold text-emerald-600">{{ s.confirmedBookings }}</p></article>
+          <article class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Cancelled</p><p class="text-xl font-bold text-rose-600">{{ s.cancelledBookings }}</p></article>
         </div>
+
+        <ng-template #noSummary>
+          <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
+            <p class="mb-2">No booking data available for {{ reportDate || 'today' }}</p>
+            <p class="text-xs text-slate-500">Create some bookings to see summary statistics</p>
+          </div>
+        </ng-template>
       </section>
 
       <section class="grid gap-4 xl:grid-cols-[2fr,1fr]">
@@ -54,7 +61,7 @@ import { ToastService } from '../../../core/services/toast.service';
           </div>
         </article>
 
-        <article class="satori-card space-y-3" *ngIf="summary() as s">
+        <article class="satori-card space-y-3" *ngIf="summary() as s; else noStatus">
           <h3 class="text-lg font-semibold">Daily Status Mix</h3>
           <div class="space-y-3 text-sm">
             <div>
@@ -71,6 +78,15 @@ import { ToastService } from '../../../core/services/toast.service';
             </div>
           </div>
         </article>
+
+        <ng-template #noStatus>
+          <article class="satori-card space-y-3">
+            <h3 class="text-lg font-semibold">Daily Status Mix</h3>
+            <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
+              <p>Load a summary to see status distribution</p>
+            </div>
+          </article>
+        </ng-template>
       </section>
 
       <ng-template #noChartData>
@@ -87,7 +103,7 @@ import { ToastService } from '../../../core/services/toast.service';
           <button class="satori-primary" (click)="loadTrend()">Generate Usage Trend</button>
         </div>
 
-        <div class="grid gap-2" *ngIf="trend() as t">
+        <div class="grid gap-2" *ngIf="trend() as t; else noTrendData">
           <article class="rounded-lg bg-slate-50 p-3" *ngFor="let point of t.points">
             <div class="flex items-center justify-between text-sm">
               <span>{{ point.bookingDate }}</span>
@@ -98,6 +114,13 @@ import { ToastService } from '../../../core/services/toast.service';
             </div>
           </article>
         </div>
+
+        <ng-template #noTrendData>
+          <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
+            <p class="mb-2">No booking trend data for {{ fromDate }} to {{ toDate }}</p>
+            <p class="text-xs text-slate-500">Create bookings to see usage trends</p>
+          </div>
+        </ng-template>
       </section>
     </div>
   `,
@@ -124,12 +147,23 @@ export class AdminReportsPageComponent implements OnInit {
     }));
   });
 
-  readonly statCards = signal([
-    { label: "Today's Bookings", value: '-' },
-    { label: 'Most Popular Facility', value: '-' },
-    { label: 'Pending Bookings', value: '-' },
-    { label: 'Cancellation Rate', value: '-' }
-  ]);
+  readonly statCards = computed(() => {
+    const s = this.summary();
+    if (!s) {
+      return [
+        { label: "Today's Bookings", value: '0', icon: 'calendar_month' },
+        { label: 'Confirmed Bookings', value: '0', icon: 'check_circle' },
+        { label: 'Cancelled Bookings', value: '0', icon: 'cancel' },
+        { label: 'Cancellation Rate', value: '0%', icon: 'warning' }
+      ];
+    }
+    return [
+      { label: "Today's Bookings", value: String(s.totalBookings), icon: 'calendar_month' },
+      { label: 'Confirmed Bookings', value: String(s.confirmedBookings), icon: 'check_circle' },
+      { label: 'Cancelled Bookings', value: String(s.cancelledBookings), icon: 'cancel' },
+      { label: 'Cancellation Rate', value: `${s.cancellationRate}%`, icon: 'warning' }
+    ];
+  });
 
   constructor(
     private readonly adminApi: AdminApiService,
@@ -165,14 +199,9 @@ export class AdminReportsPageComponent implements OnInit {
     try {
       const data = await firstValueFrom(this.adminApi.getOperationalSummary(this.reportDate || null));
       this.summary.set(data);
-      this.statCards.set([
-        { label: "Today's Bookings", value: String(data.totalBookings) },
-        { label: 'Most Popular Facility', value: 'Lunch' },
-        { label: 'Pending Bookings', value: String(Math.max(0, data.totalBookings - data.confirmedBookings - data.cancelledBookings)) },
-        { label: 'Cancellation Rate', value: `${data.cancellationRate}%` }
-      ]);
     } catch (error: any) {
       this.toastService.show(error?.error?.message ?? 'Failed to load report summary', 'error');
+      console.error('Summary error:', error);
     } finally {
       this.loadingSummary.set(false);
     }

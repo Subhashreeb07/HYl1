@@ -3,25 +3,123 @@
 @tailwind utilities;
 
 :root {
-  --hy-bg: #edf2fb;
+  --hy-bg: #eef3f9;
   --hy-card: #ffffff;
-  --hy-ink: #0f172a;
-  --hy-muted: #5b667a;
+  --hy-ink: #11233f;
+  --hy-muted: #5d6c84;
+  --hy-line: #dbe4f0;
+  --hy-brand-blue: #0f6cbd;
+  --hy-brand-teal: #23a3a3;
+  --hy-brand-gold: #f4b942;
+  --hy-brand-navy: #183b63;
   --satori-accent: #0f6cbd;
   --satori-accent-strong: #0b4f8a;
   --satori-danger: #b42318;
 }
 
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  background: var(--hy-bg);
+  background:
+    radial-gradient(circle at top left, rgba(35, 163, 163, 0.15), transparent 28%),
+    radial-gradient(circle at top right, rgba(244, 185, 66, 0.16), transparent 24%),
+    linear-gradient(180deg, #f7f9fc 0%, var(--hy-bg) 100%);
   color: var(--hy-ink);
-  font-family: "Inter", "Segoe UI", "Trebuchet MS", sans-serif;
+  font-family: "Aptos", "Segoe UI Variable", "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+app-root {
+  display: block;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.hyland-logo {
+  height: 25px;
+  width: auto;
+  max-width: 350px;
+  display: block;
+  overflow: visible;
+}
+
+.hyland-logo-sidebar {
+  height: 28px;
+  max-width: 210px;
 }
 
 .material-icons,
 .material-icons-outlined {
   font-family: "Material Icons Outlined", "Material Icons", sans-serif !important;
+}
+
+.portal-surface {
+  border: 1px solid rgba(219, 228, 240, 0.95);
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 60px rgba(24, 59, 99, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.portal-panel {
+  border: 1px solid var(--hy-line);
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.94));
+  box-shadow: 0 16px 36px rgba(17, 35, 63, 0.08);
+}
+
+.portal-hero {
+  border: 1px solid rgba(24, 59, 99, 0.08);
+  border-radius: 1.75rem;
+  background:
+    linear-gradient(135deg, rgba(15, 108, 189, 0.94), rgba(24, 59, 99, 0.96)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+  color: #ffffff;
+  box-shadow: 0 22px 50px rgba(24, 59, 99, 0.24);
+}
+
+.portal-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.portal-title {
+  font-size: clamp(1.85rem, 2.6vw, 2.6rem);
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.portal-stat {
+  border: 1px solid rgba(219, 228, 240, 0.88);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 1rem;
+}
+
+.portal-shell-strip {
+  height: 0.35rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--hy-brand-blue) 0 34%, var(--hy-brand-teal) 34% 68%, var(--hy-brand-gold) 68% 100%);
+}
+
+.portal-search {
+  border: 1px solid var(--hy-line);
+  border-radius: 999px;
+  background: #f8fbff;
+}
+
+.portal-search input {
+  font: inherit;
+  color: inherit;
+}
+
+.portal-muted {
+  color: var(--hy-muted);
 }
 
 .satori-card {

@@ -25,6 +25,21 @@ export class SessionService {
     this.state.set(next);
   }
 
+  refreshUser(user: CurrentUserResponse): void {
+    const current = this.state();
+    if (!current?.token) {
+      return;
+    }
+
+    const next: SessionState = {
+      token: current.token,
+      user
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(next));
+    this.state.set(next);
+  }
+
   clear(): void {
     localStorage.removeItem(this.storageKey);
     this.state.set(null);

@@ -10,15 +10,20 @@ import { SessionService } from '../../core/services/session.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto max-w-6xl rounded-3xl bg-[#f7f5f3] p-5 shadow-lg md:p-7" *ngIf="data() as view">
-      <div class="flex items-center justify-between">
-        <h2 class="text-3xl font-bold text-[#111827]">Invitations</h2>
-        <a routerLink="/employee/dashboard" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-white">Home</a>
-      </div>
-      <p class="mt-2 text-sm text-[#6b7280]">Pending: {{ view.pendingCount }}</p>
+    <section class="mx-auto max-w-6xl space-y-5" *ngIf="data() as view">
+      <header class="portal-panel px-6 py-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Employee Collaboration</p>
+            <h2 class="mt-1 text-3xl font-bold text-[#111827]">Invitations</h2>
+            <p class="mt-1 text-sm text-[#6b7280]">Pending: {{ view.pendingCount }}</p>
+          </div>
+          <a routerLink="/employee/dashboard" class="satori-secondary">Home</a>
+        </div>
+      </header>
 
-      <div class="mt-4 grid gap-3">
-        <article *ngFor="let invitation of view.invitations" class="rounded-2xl bg-white p-4 shadow-sm">
+      <div class="grid gap-3">
+        <article *ngFor="let invitation of view.invitations" class="portal-panel p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
               <h3 class="text-xl font-semibold text-[#111827]">{{ invitation.title }}</h3>

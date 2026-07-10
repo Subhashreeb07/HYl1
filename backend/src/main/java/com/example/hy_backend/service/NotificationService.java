@@ -3,6 +3,7 @@ package com.example.hy_backend.service;
 import com.example.hy_backend.dto.NotificationDtos;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NotificationService {
     NotificationDtos.NotificationResponse createNotification(NotificationDtos.CreateNotificationRequest request);
@@ -12,6 +13,8 @@ public interface NotificationService {
     NotificationDtos.NotificationListResponse getEmployeeNotifications(String employeeId, String statusCode);
 
     NotificationDtos.NotificationResponse markNotificationStatus(NotificationDtos.MarkNotificationRequest request);
+
+    int queueTriggeredNotifications(String triggerEvent, String employeeId, Long bookingId, Map<String, String> placeholders);
 
     NotificationDtos.ProcessNotificationsResponse processPendingNotifications(Integer batchSize);
 

@@ -96,6 +96,50 @@ public class BookingServiceImpl implements BookingService {
 
         validateBookingResponses(fields, fieldMap, responseMap);
 
+        Optional<Booking> existingForDay = bookingRepository
+            .findFirstByEmployeeIdAndFacilityFacilityIdAndBookingDateAndStatusOrderByCreatedAtDesc(
+                normalizedEmployeeId,
+                facility.getFacilityId(),
+                bookingDate,
+                BookingStatus.CONFIRMED
+            );
+
+        if (existingForDay.isPresent()) {
+            Booking existing = existingForDay.get();
+            existing.setClientRequestId(normalizedClientRequestId);
+            existing.setStatus(BookingStatus.CONFIRMED);
+            existing.setCancelledAt(null);
+
+            applyBookingResponses(existing, responseMap, fieldMap);
+
+            Booking saved = bookingRepository.save(existing);
+            String qrCode = ruleEngineService.generateQrCodeIfRequired(rule, saved);
+            if (qrCode != null) {
+            saved.setQrCode(qrCode);
+            saved = bookingRepository.save(saved);
+            }
+
+            auditService.logAction(
+                saved.getEmployeeId(),
+                "EMPLOYEE",
+                "BOOKING_UPDATED",
+                "Booking",
+                String.valueOf(saved.getBookingId()),
+                null,
+                "{\"status\":\"CONFIRMED\",\"mode\":\"EDIT_SAME_DAY\"}",
+                null
+            );
+
+            return new BookingDtos.SubmitBookingResponse(
+                saved.getBookingId(),
+                saved.getStatus().name(),
+                saved.getBookingDate().toString(),
+                saved.getCreatedAt().toString(),
+                false,
+                "Existing booking updated for this facility and date"
+            );
+        }
+
         Booking booking = new Booking();
         booking.setFacility(facility);
         booking.setEmployeeId(normalizedEmployeeId);
@@ -103,16 +147,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setBookingDate(bookingDate);
 
-        List<BookingResponse> bookingResponses = new ArrayList<>();
-        for (Map.Entry<Long, String> entry : responseMap.entrySet()) {
-            FieldDefinition field = fieldMap.get(entry.getKey());
-            BookingResponse response = new BookingResponse();
-            response.setBooking(booking);
-            response.setField(field);
-            response.setValue(entry.getValue());
-            bookingResponses.add(response);
-        }
-        booking.setResponses(bookingResponses);
+        applyBookingResponses(booking, responseMap, fieldMap);
 
         Booking saved = bookingRepository.save(booking);
         String qrCode = ruleEngineService.generateQrCodeIfRequired(rule, saved);
@@ -121,13 +156,25 @@ public class BookingServiceImpl implements BookingService {
             saved = bookingRepository.save(saved);
         }
 
-        notificationService.createNotification(new NotificationDtos.CreateNotificationRequest(
+        int queuedFromTrigger = notificationService.queueTriggeredNotifications(
+            "BOOKING_CREATED",
             saved.getEmployeeId(),
             saved.getBookingId(),
-            "BOOKING_CONFIRMED",
-            "IN_APP",
-            "Booking confirmed for " + facility.getFacilityName() + " on " + saved.getBookingDate()
-        ));
+            Map.of(
+                "facilityName", saved.getFacility().getFacilityName(),
+                "bookingDate", saved.getBookingDate().toString()
+            )
+        );
+
+        if (queuedFromTrigger == 0) {
+            notificationService.createNotification(new NotificationDtos.CreateNotificationRequest(
+                saved.getEmployeeId(),
+                saved.getBookingId(),
+                "BOOKING_CONFIRMED",
+                "IN_APP",
+                "Booking confirmed for " + facility.getFacilityName() + " on " + saved.getBookingDate()
+            ));
+        }
 
         auditService.logAction(
             saved.getEmployeeId(),
@@ -200,13 +247,25 @@ public class BookingServiceImpl implements BookingService {
         booking.setCancelledAt(LocalDateTime.now());
         Booking saved = bookingRepository.save(booking);
 
-        notificationService.createNotification(new NotificationDtos.CreateNotificationRequest(
+        int queuedFromTrigger = notificationService.queueTriggeredNotifications(
+            "BOOKING_CANCELLED",
             saved.getEmployeeId(),
             saved.getBookingId(),
-            "BOOKING_CANCELLED",
-            "IN_APP",
-            "Booking cancelled for " + saved.getFacility().getFacilityName() + " on " + saved.getBookingDate()
-        ));
+            Map.of(
+                "facilityName", saved.getFacility().getFacilityName(),
+                "bookingDate", saved.getBookingDate().toString()
+            )
+        );
+
+        if (queuedFromTrigger == 0) {
+            notificationService.createNotification(new NotificationDtos.CreateNotificationRequest(
+                saved.getEmployeeId(),
+                saved.getBookingId(),
+                "BOOKING_CANCELLED",
+                "IN_APP",
+                "Booking cancelled for " + saved.getFacility().getFacilityName() + " on " + saved.getBookingDate()
+            ));
+        }
 
         auditService.logAction(
             saved.getEmployeeId(),
@@ -307,7 +366,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Booking getBookingOrThrow(Long bookingId) {
-        return bookingRepository.findById(bookingId)
+        return bookingRepository.findByIdWithFacility(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
     }
 
@@ -354,6 +413,23 @@ public class BookingServiceImpl implements BookingService {
                     throw new BadRequestException("Invalid option for field: " + field.getLabel());
                 }
             }
+        }
+    }
+
+    private void applyBookingResponses(
+            Booking booking,
+            Map<Long, String> responseMap,
+            Map<Long, FieldDefinition> fieldMap
+    ) {
+        booking.getResponses().clear();
+
+        for (Map.Entry<Long, String> entry : responseMap.entrySet()) {
+            FieldDefinition field = fieldMap.get(entry.getKey());
+            BookingResponse response = new BookingResponse();
+            response.setBooking(booking);
+            response.setField(field);
+            response.setValue(entry.getValue());
+            booking.getResponses().add(response);
         }
     }
 

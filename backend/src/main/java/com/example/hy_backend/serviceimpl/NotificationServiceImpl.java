@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -136,6 +137,78 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification saved = notificationRepository.save(notification);
         return toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public int queueTriggeredNotifications(String triggerEvent, String employeeId, Long bookingId, Map<String, String> placeholders) {
+        String normalizedEvent = normalizeOptional(triggerEvent);
+        if (normalizedEvent.isBlank()) {
+            throw new BadRequestException("triggerEvent is required");
+        }
+
+        String normalizedEmployeeId = normalizeEmployeeId(employeeId);
+        if (!employeeRepository.existsById(normalizedEmployeeId)) {
+            throw new ResourceNotFoundException("Employee not found with id: " + normalizedEmployeeId);
+        }
+
+        Booking booking = null;
+        if (bookingId != null) {
+            booking = bookingRepository.findById(bookingId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+        }
+
+        Map<String, String> mergedPlaceholders = new HashMap<>();
+        if (placeholders != null) {
+            mergedPlaceholders.putAll(placeholders);
+        }
+
+        employeeRepository.findById(normalizedEmployeeId).ifPresent(employee -> {
+            mergedPlaceholders.putIfAbsent("employeeName", employee.getFullName() == null ? "" : employee.getFullName());
+            mergedPlaceholders.putIfAbsent("office", employee.getOfficeLocation() == null ? "" : employee.getOfficeLocation());
+        });
+
+        if (booking != null) {
+            mergedPlaceholders.putIfAbsent("bookingDate", booking.getBookingDate() == null ? "" : booking.getBookingDate().toString());
+            if (booking.getFacility() != null) {
+                mergedPlaceholders.putIfAbsent("facilityName", booking.getFacility().getFacilityName() == null ? "" : booking.getFacility().getFacilityName());
+            }
+        }
+
+        List<NotificationTrigger> triggers = notificationTriggerRepository.findByTriggerEventIgnoreCaseAndEnabledTrue(normalizedEvent);
+        int queued = 0;
+
+        for (NotificationTrigger trigger : triggers) {
+            NotificationTemplate template = trigger.getTemplate();
+            if (template == null) {
+                continue;
+            }
+
+            List<String> channels = splitChannels(template.getChannels());
+            if (channels.isEmpty()) {
+                continue;
+            }
+
+            LocalDateTime scheduledAt = LocalDateTime.now().plusMinutes(Math.max(0, trigger.getOffsetMinutes() == null ? 0 : trigger.getOffsetMinutes()));
+            String subject = applyPlaceholders(template.getSubject(), mergedPlaceholders);
+            String body = applyPlaceholders(template.getMessageTemplate(), mergedPlaceholders);
+            String messageBody = "Subject: " + subject + "\n" + body;
+
+            for (String channel : channels) {
+                createInternal(
+                        normalizedEmployeeId,
+                        booking == null ? null : booking.getBookingId(),
+                        template.getNotificationType(),
+                        channel,
+                        messageBody,
+                        scheduledAt,
+                        3
+                );
+                queued++;
+            }
+        }
+
+        return queued;
     }
 
     @Override
@@ -488,8 +561,13 @@ public class NotificationServiceImpl implements NotificationService {
             LocalDateTime scheduledAt,
             int maxRetries
     ) {
+        String normalizedEmployeeId = normalizeEmployeeId(employeeId);
+        if (!employeeRepository.existsById(normalizedEmployeeId)) {
+            throw new ResourceNotFoundException("Employee not found with id: " + normalizedEmployeeId);
+        }
+
         Notification notification = new Notification();
-        notification.setEmployeeId(normalizeEmployeeId(employeeId));
+        notification.setEmployeeId(normalizedEmployeeId);
 
         if (bookingId != null) {
             Booking booking = bookingRepository.findById(bookingId)

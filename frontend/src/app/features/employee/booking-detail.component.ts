@@ -10,14 +10,17 @@ import { ToastService } from '../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto max-w-6xl rounded-3xl bg-white p-6 shadow-lg" *ngIf="detail() as d">
+    <section class="portal-panel mx-auto max-w-6xl p-6 shadow-none" *ngIf="detail() as d">
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-2xl font-bold text-slate-900">Booking #{{ d.bookingId }}</h2>
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Booking Detail</p>
+          <h2 class="mt-1 text-2xl font-bold text-slate-900">Booking #{{ d.bookingId }}</h2>
+        </div>
         <div class="flex gap-2">
-          <a routerLink="/employee/history" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">History</a>
+          <a routerLink="/employee/history" class="satori-secondary">History</a>
           <button
             *ngIf="d.status !== 'CANCELLED'"
-            class="rounded-xl bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700"
+            class="rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
             (click)="cancel(d.bookingId)"
           >
             Cancel Booking

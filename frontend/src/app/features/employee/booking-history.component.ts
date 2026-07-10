@@ -10,36 +10,54 @@ import { SessionService } from '../../core/services/session.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="mx-auto max-w-6xl rounded-3xl bg-white p-6 shadow-lg">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-slate-900">Booking History</h2>
-        <a routerLink="/employee/dashboard" class="rounded-xl border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">Dashboard</a>
-      </div>
+    <section class="mx-auto max-w-6xl space-y-5">
+      <header class="portal-panel px-6 py-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Employee Activity</p>
+            <h2 class="mt-1 text-3xl font-bold text-slate-900">Booking History</h2>
+            <p class="mt-1 text-sm text-slate-600">Review previous submissions and jump into the full booking detail view.</p>
+          </div>
+          <a routerLink="/employee/dashboard" class="satori-secondary">Dashboard</a>
+        </div>
+      </header>
 
-      <div class="mt-5 overflow-hidden rounded-2xl bg-[#fafafa]">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-slate-50 text-slate-700">
-            <tr>
-              <th class="px-4 py-3">Booking ID</th>
-              <th class="px-4 py-3">Facility</th>
-              <th class="px-4 py-3">Status</th>
-              <th class="px-4 py-3">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of items()" class="border-t border-slate-100">
-              <td class="px-4 py-3">#{{ item.bookingId }}</td>
-              <td class="px-4 py-3">{{ item.facility }}</td>
-              <td class="px-4 py-3">{{ item.status }}</td>
-              <td class="px-4 py-3">
-                <a [routerLink]="['/employee/bookings', item.bookingId]" class="font-medium text-brand-700 hover:text-brand-900">View</a>
-              </td>
-            </tr>
-            <tr *ngIf="items().length === 0">
-              <td class="px-4 py-6 text-slate-500" colspan="4">No bookings found.</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="portal-panel overflow-hidden">
+        <div class="border-b border-slate-200 px-6 py-4">
+          <p class="text-sm font-semibold text-slate-900">All Bookings</p>
+          <p class="mt-1 text-xs text-slate-500">{{ items().length }} record{{ items().length === 1 ? '' : 's' }} available</p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[640px] text-left text-sm">
+            <thead class="bg-slate-50 text-slate-700">
+              <tr>
+                <th class="px-6 py-3">Booking ID</th>
+                <th class="px-6 py-3">Facility</th>
+                <th class="px-6 py-3">Status</th>
+                <th class="px-6 py-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of items()" class="border-t border-slate-100">
+                <td class="px-6 py-4 font-semibold text-slate-900">#{{ item.bookingId }}</td>
+                <td class="px-6 py-4">{{ item.facility }}</td>
+                <td class="px-6 py-4">
+                  <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                    [ngClass]="item.status === 'CANCELLED' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'">
+                    {{ item.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <a [routerLink]="['/employee/bookings', item.bookingId]" class="font-medium text-[#0f6cbd] hover:text-[#0b4f8a]">View</a>
+                </td>
+              </tr>
+              <tr *ngIf="items().length === 0">
+                <td class="px-6 py-8 text-slate-500" colspan="4">No bookings found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   `
