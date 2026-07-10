@@ -23,7 +23,7 @@ export const authGuard: CanActivateFn = () => {
     }),
     catchError(() => {
       sessionService.clear();
-      toastService.show('Session expired. Please login again.', 'info');
+      toastService.show('Your session has expired. Please sign in again to continue.', 'info');
       return of(router.createUrlTree(['/login']));
     })
   );

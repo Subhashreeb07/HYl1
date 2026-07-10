@@ -16,4 +16,6 @@ public interface ReportService {
     ReportDtos.FacilityUtilizationResponse getFacilityUtilization(Long facilityId, String bookingDate);
 
     ReportDtos.BookingTrendResponse getBookingTrend(Long facilityId, String fromDate, String toDate);
+
+    ReportDtos.EmployeeRegistrationsResponse getEmployeeRegistrations(String query, String location, Boolean activeOnly);
 }

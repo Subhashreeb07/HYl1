@@ -49,4 +49,25 @@ public final class ReportDtos {
 
         public record BookingTrendResponse(String fromDate, String toDate, Long facilityId, List<TrendPoint> points) {
         }
+
+        public record EmployeeRegistrationItem(
+            String employeeId,
+            String fullName,
+            String email,
+            String department,
+            String officeLocation,
+            String workMode,
+            String roleCode,
+            Boolean active,
+            String createdAt
+        ) {
+        }
+
+        public record EmployeeRegistrationsResponse(
+            List<EmployeeRegistrationItem> items,
+            long total,
+            long active,
+            long inactive
+        ) {
+        }
 }

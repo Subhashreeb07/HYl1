@@ -40,7 +40,7 @@ import { ToastService } from '../../core/services/toast.service';
                 <span class="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-lg shadow-sm">{{ iconEmoji(facility.icon) }}</span>
                 <span class="min-w-0">
                   <span class="block truncate text-sm font-semibold text-slate-900">{{ facility.facilityName }}</span>
-                  <span class="mt-1 block text-xs text-slate-500">Open service form</span>
+                  <span class="mt-1 block text-xs text-slate-500">Open service request form</span>
                 </span>
               </div>
             </button>
@@ -48,7 +48,7 @@ import { ToastService } from '../../core/services/toast.service';
 
           <ng-template #emptySidebarState>
             <div class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
-              No published services yet.
+              No published services are currently available.
             </div>
           </ng-template>
         </aside>
@@ -58,12 +58,12 @@ import { ToastService } from '../../core/services/toast.service';
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#0f6cbd]">Employee portal</p>
-                <h1 class="mt-2 text-3xl font-semibold text-slate-900">Welcome back, {{ employeeName() }}</h1>
-                <p class="mt-2 text-sm text-slate-600">Choose a workplace service, review your latest activity, and stay on top of notifications.</p>
+                <h1 class="mt-2 text-3xl font-semibold text-slate-900">Welcome, {{ employeeName() }}</h1>
+                <p class="mt-2 text-sm text-slate-600">Select a workplace service, review recent activity, and stay informed through notifications.</p>
               </div>
 
               <div class="flex flex-wrap gap-2 text-sm">
-                <button class="satori-primary" (click)="goHistory()">My bookings</button>
+                <button class="satori-primary" (click)="goHistory()">Booking Records</button>
                 <button class="satori-secondary" (click)="goNotifications()">Notifications</button>
                 <button class="satori-secondary" (click)="goProfile()">Profile</button>
               </div>
@@ -125,8 +125,8 @@ import { ToastService } from '../../core/services/toast.service';
                     </div>
                     <span class="rounded-full bg-[#edf5ff] px-2 py-1 text-[10px] font-semibold text-[#0f6cbd]">Book</span>
                   </div>
-                  <p class="mt-3 text-sm text-slate-600">Open the latest published form and submit your request.</p>
-                  <div class="mt-4 text-sm font-semibold text-[#0f6cbd]">Open service</div>
+                  <p class="mt-3 text-sm text-slate-600">Open the latest approved form and submit your request.</p>
+                  <div class="mt-4 text-sm font-semibold text-[#0f6cbd]">Open Service</div>
                 </article>
               </div>
             </div>
@@ -140,7 +140,7 @@ import { ToastService } from '../../core/services/toast.service';
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p class="text-sm font-semibold text-slate-900">{{ event.facility }}</p>
-                      <p class="mt-1 text-xs text-slate-500">Booking date: {{ event.bookingDate }}</p>
+                      <p class="mt-1 text-xs text-slate-500">Booking Date: {{ event.bookingDate }}</p>
                     </div>
                     <span class="rounded-full px-2 py-1 text-[10px] font-semibold"
                       [ngClass]="event.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : event.status === 'CANCELLED' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-700'">
@@ -148,7 +148,7 @@ import { ToastService } from '../../core/services/toast.service';
                     </span>
                   </div>
                   <div class="mt-3">
-                    <button class="text-sm font-semibold text-[#0f6cbd]" (click)="openBooking(event.bookingId)">View booking</button>
+                    <button class="text-sm font-semibold text-[#0f6cbd]" (click)="openBooking(event.bookingId)">View Booking</button>
                   </div>
                 </article>
               </div>
@@ -156,13 +156,13 @@ import { ToastService } from '../../core/services/toast.service';
 
             <ng-template #emptyEventsState>
               <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
-                No booking events available yet.
+                No booking activities are currently available.
               </div>
             </ng-template>
 
             <ng-template #emptyState>
               <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
-                No published facilities available. Ask an administrator to publish at least one facility configuration.
+                No published facilities are available. Please contact an administrator to publish at least one facility configuration.
               </div>
             </ng-template>
           </section>
@@ -175,11 +175,11 @@ import { ToastService } from '../../core/services/toast.service';
               <div class="rounded-2xl bg-[#f7f9fc] p-4">
                 <p class="font-semibold text-slate-900">Notifications</p>
                 <p class="mt-1 text-slate-600">{{ unreadNotifications() }} unread update{{ unreadNotifications() === 1 ? '' : 's' }}</p>
-                <button class="mt-2 text-xs font-semibold text-[#0f6cbd]" (click)="goNotifications()">Open notifications</button>
+                <button class="mt-2 text-xs font-semibold text-[#0f6cbd]" (click)="goNotifications()">Open Notifications</button>
               </div>
               <div class="rounded-2xl bg-[#f7f9fc] p-4">
                 <p class="font-semibold text-slate-900">Bookings</p>
-                <p class="mt-1 text-slate-600">{{ bookingCount() }} booking{{ bookingCount() === 1 ? '' : 's' }} in your history.</p>
+                <p class="mt-1 text-slate-600">{{ bookingCount() }} booking{{ bookingCount() === 1 ? '' : 's' }} recorded in your history.</p>
               </div>
             </div>
           </section>
@@ -189,7 +189,7 @@ import { ToastService } from '../../core/services/toast.service';
     </section>
 
     <ng-template #loadingState>
-      <section class="portal-panel mx-auto w-full max-w-[1280px] px-6 py-8 text-[#4b5563]">Loading published facilities...</section>
+      <section class="portal-panel mx-auto w-full max-w-[1280px] px-6 py-8 text-[#4b5563]">Loading published facilities. Please wait.</section>
     </ng-template>
   `
 })
@@ -279,7 +279,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       error: (err) => {
         const status = err?.status ? ` (${err.status})` : '';
         if (!silent) {
-          this.toastService.show(`Unable to load dashboard facilities${status}`, 'error');
+          this.toastService.show(`Dashboard facilities could not be loaded${status}.`, 'error');
         }
         this.facilities.set([]);
         this.isLoading = false;
@@ -317,7 +317,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error: () => {
         if (!silent) {
-          this.toastService.show('Unable to load notifications', 'error');
+          this.toastService.show('Notifications could not be loaded at this time.', 'error');
         }
       }
     });
@@ -334,13 +334,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.bookingApi.getBookingHistory(employeeId).subscribe({
       next: (history) => {
         this.bookingCount.set(history.length ?? 0);
-        this.bookingEvents.set(history.slice(0, 8));
+        const filteredEvents = (history ?? []).filter((item) => {
+          const facility = (item.facility ?? '').trim().toUpperCase();
+          return !facility.includes('CAB');
+        });
+        this.bookingEvents.set(filteredEvents.slice(0, 8));
       },
       error: () => {
         this.bookingCount.set(0);
         this.bookingEvents.set([]);
         if (!silent) {
-          this.toastService.show('Unable to load booking summary', 'error');
+          this.toastService.show('Booking activity summary could not be loaded at this time.', 'error');
         }
       }
     });

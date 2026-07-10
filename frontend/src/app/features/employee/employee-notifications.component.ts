@@ -19,11 +19,11 @@ import { ToastService } from '../../core/services/toast.service';
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Employee Communication Center</p>
             <h2 class="mt-1 text-3xl font-bold text-slate-900">Notifications</h2>
-            <p class="mt-1 text-sm text-slate-600">Review and manage your recent updates from facilities and bookings.</p>
+            <p class="mt-1 text-sm text-slate-600">Review and manage recent updates related to facilities and bookings.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button class="satori-secondary" (click)="loadNotifications()">Refresh</button>
-            <button class="satori-primary" (click)="markAllAsRead()">Mark all unread as read</button>
+            <button class="satori-secondary" (click)="loadNotifications()">Refresh Data</button>
+            <button class="satori-primary" (click)="markAllAsRead()">Mark All as Read</button>
           </div>
         </div>
       </header>
@@ -72,7 +72,7 @@ import { ToastService } from '../../core/services/toast.service';
                 [disabled]="isMarking(item.notificationId)"
                 (click)="markAsRead(item)"
               >
-                {{ isMarking(item.notificationId) ? 'Updating...' : 'Mark read' }}
+                {{ isMarking(item.notificationId) ? 'Updating...' : 'Mark as Read' }}
               </button>
             </div>
           </article>
@@ -80,13 +80,13 @@ import { ToastService } from '../../core/services/toast.service';
 
         <ng-template #emptyState>
           <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">
-            No notifications available.
+            No notifications are currently available.
           </div>
         </ng-template>
       </section>
 
       <div>
-        <a routerLink="/employee/dashboard" class="satori-secondary inline-flex">Back to dashboard</a>
+        <a routerLink="/employee/dashboard" class="satori-secondary inline-flex">Return to Dashboard</a>
       </div>
     </section>
   `
@@ -140,7 +140,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         if (!silent) {
-          this.toastService.show('Unable to load notifications', 'error');
+          this.toastService.show('Notifications could not be loaded at this time.', 'error');
         }
       }
     });
@@ -166,7 +166,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.setMarking(item.notificationId, false);
-        const message = err?.error?.message ?? 'Failed to update notification status';
+        const message = err?.error?.message ?? 'Notification status could not be updated.';
         this.toastService.show(message, 'error');
       }
     });
@@ -175,7 +175,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
   markAllAsRead(): void {
     const unread = this.notifications().filter((item) => this.isUnread(item));
     if (unread.length === 0) {
-      this.toastService.show('No unread notifications', 'info');
+      this.toastService.show('There are no unread notifications.', 'info');
       return;
     }
 
@@ -183,7 +183,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
       this.setMarking(item.notificationId, true);
       return this.employeeApi.markNotificationRead(item.notificationId).pipe(
         map(() => ({ ok: true, id: item.notificationId })),
-        catchError((err) => of({ ok: false, id: item.notificationId, message: err?.error?.message ?? 'Failed to update notification status' }))
+        catchError((err) => of({ ok: false, id: item.notificationId, message: err?.error?.message ?? 'Notification status could not be updated.' }))
       );
     });
 
@@ -194,7 +194,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
       successIds.forEach((id) => this.setMarking(id, false));
       failed.forEach((result) => {
         this.setMarking(result.id, false);
-        const message = 'message' in result ? result.message : 'Failed to update notification status';
+        const message = 'message' in result ? result.message : 'Notification status could not be updated.';
         this.toastService.show(message, 'error');
       });
 
@@ -207,7 +207,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
           )
         );
         this.unreadCount.set(this.notifications().filter((entry) => this.isUnread(entry)).length);
-        this.toastService.show('All unread notifications marked as read', 'success');
+        this.toastService.show('All unread notifications have been marked as read.', 'success');
       }
     });
   }
@@ -230,7 +230,7 @@ export class EmployeeNotificationsComponent implements OnInit, OnDestroy {
 
   readableDate(value?: string | null): string {
     if (!value) {
-      return 'Just now';
+      return 'Moments ago';
     }
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString();

@@ -4,9 +4,11 @@ import com.example.hy_backend.dto.ReportDtos;
 import com.example.hy_backend.exception.BadRequestException;
 import com.example.hy_backend.exception.ResourceNotFoundException;
 import com.example.hy_backend.model.BookingStatus;
+import com.example.hy_backend.model.Employee;
 import com.example.hy_backend.model.Facility;
 import com.example.hy_backend.model.FacilityRule;
 import com.example.hy_backend.repository.BookingRepository;
+import com.example.hy_backend.repository.EmployeeRepository;
 import com.example.hy_backend.repository.FacilityRepository;
 import com.example.hy_backend.repository.FacilityRuleRepository;
 import com.example.hy_backend.service.ReportService;
@@ -19,21 +21,25 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
 public class ReportServiceImpl implements ReportService {
 
     private final BookingRepository bookingRepository;
+    private final EmployeeRepository employeeRepository;
     private final FacilityRepository facilityRepository;
     private final FacilityRuleRepository facilityRuleRepository;
 
     public ReportServiceImpl(
             BookingRepository bookingRepository,
+            EmployeeRepository employeeRepository,
             FacilityRepository facilityRepository,
             FacilityRuleRepository facilityRuleRepository
     ) {
         this.bookingRepository = bookingRepository;
+        this.employeeRepository = employeeRepository;
         this.facilityRepository = facilityRepository;
         this.facilityRuleRepository = facilityRuleRepository;
     }
@@ -202,6 +208,38 @@ public class ReportServiceImpl implements ReportService {
         return new ReportDtos.BookingTrendResponse(from.toString(), to.toString(), facilityId, points);
     }
 
+        @Override
+        public ReportDtos.EmployeeRegistrationsResponse getEmployeeRegistrations(String query, String location, Boolean activeOnly) {
+        String normalizedQuery = normalizeNullable(query);
+        String normalizedLocation = normalizeNullable(location);
+
+        List<Employee> allEmployees = employeeRepository.findAllByOrderByCreatedAtDesc();
+        List<Employee> filtered = allEmployees.stream()
+            .filter(employee -> matchesQuery(employee, normalizedQuery))
+            .filter(employee -> matchesLocation(employee, normalizedLocation))
+            .filter(employee -> activeOnly == null || Boolean.TRUE.equals(activeOnly) == Boolean.TRUE.equals(employee.getActive()))
+            .toList();
+
+        List<ReportDtos.EmployeeRegistrationItem> items = filtered.stream()
+            .map(employee -> new ReportDtos.EmployeeRegistrationItem(
+                employee.getEmployeeId(),
+                employee.getFullName(),
+                employee.getEmail(),
+                employee.getDepartment(),
+                employee.getOfficeLocation(),
+                employee.getWorkMode(),
+                employee.getRoleCode(),
+                employee.getActive(),
+                employee.getCreatedAt() == null ? null : employee.getCreatedAt().toString()
+            ))
+            .toList();
+
+        long activeCount = filtered.stream().filter(employee -> Boolean.TRUE.equals(employee.getActive())).count();
+        long inactiveCount = filtered.size() - activeCount;
+
+        return new ReportDtos.EmployeeRegistrationsResponse(items, filtered.size(), activeCount, inactiveCount);
+        }
+
     private LocalDate parseDate(String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new BadRequestException(fieldName + " is required and must use yyyy-MM-dd format");
@@ -215,5 +253,39 @@ public class ReportServiceImpl implements ReportService {
 
     private double roundTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    private String normalizeNullable(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String value = raw.trim();
+        return value.isEmpty() ? null : value.toUpperCase(Locale.ROOT);
+    }
+
+    private boolean matchesQuery(Employee employee, String query) {
+        if (query == null) {
+            return true;
+        }
+
+        return containsIgnoreCase(employee.getEmployeeId(), query)
+                || containsIgnoreCase(employee.getFullName(), query)
+                || containsIgnoreCase(employee.getEmail(), query)
+                || containsIgnoreCase(employee.getDepartment(), query);
+    }
+
+    private boolean matchesLocation(Employee employee, String location) {
+        if (location == null) {
+            return true;
+        }
+        String office = employee.getOfficeLocation() == null ? "" : employee.getOfficeLocation().trim().toUpperCase(Locale.ROOT);
+        return office.equals(location);
+    }
+
+    private boolean containsIgnoreCase(String raw, String needleUpper) {
+        if (raw == null) {
+            return false;
+        }
+        return raw.toUpperCase(Locale.ROOT).contains(needleUpper);
     }
 }

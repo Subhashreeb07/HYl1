@@ -197,3 +197,22 @@ export interface BroadcastNotificationResponse {
   sampleEmployeeIds: string[];
   message: string;
 }
+
+export interface EmployeeRegistrationItem {
+  employeeId: string;
+  fullName: string;
+  email: string;
+  department?: string | null;
+  officeLocation?: string | null;
+  workMode?: string | null;
+  roleCode: string;
+  active: boolean;
+  createdAt?: string | null;
+}
+
+export interface EmployeeRegistrationsResponse {
+  items: EmployeeRegistrationItem[];
+  total: number;
+  active: number;
+  inactive: number;
+}

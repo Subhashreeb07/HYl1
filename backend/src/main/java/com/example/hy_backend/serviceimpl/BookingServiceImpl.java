@@ -13,7 +13,6 @@ import com.example.hy_backend.service.AuditService;
 import com.example.hy_backend.service.BookingService;
 import com.example.hy_backend.service.NotificationService;
 import com.example.hy_backend.service.RuleEngineService;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -198,8 +197,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDtos.BookingHistoryItem> getBookingHistory(String employeeId) {
         return bookingRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId.trim().toUpperCase(Locale.ROOT)).stream()
+                .filter(booking -> isFacilityVisible(booking.getFacility()))
                 .map(booking -> new BookingDtos.BookingHistoryItem(
                         booking.getBookingId(),
                         booking.getFacility().getFacilityName(),
@@ -210,8 +211,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDtos.BookingDetail getBookingDetail(Long bookingId) {
         Booking booking = getBookingOrThrow(bookingId);
+        if (!isFacilityVisible(booking.getFacility())) {
+            throw new ResourceNotFoundException("Booking not found with id: " + bookingId);
+        }
+
         List<BookingDtos.BookingAnswer> answers = booking.getResponses().stream()
                 .map(response -> new BookingDtos.BookingAnswer(
                         response.getField().getFieldId(),
@@ -280,36 +286,43 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDtos.AdminBookingSearchItem> searchBookings(Long facilityId, String employeeId, String status, String bookingDate) {
-        Specification<Booking> specification = (root, query, cb) -> cb.conjunction();
+        String normalizedEmployeeId = (employeeId == null || employeeId.isBlank())
+                ? null
+                : employeeId.trim().toUpperCase(Locale.ROOT);
+        BookingStatus parsedStatus = (status == null || status.isBlank()) ? null : parseStatus(status);
+        LocalDate parsedDate = (bookingDate == null || bookingDate.isBlank()) ? null : parseBookingDate(bookingDate);
 
-        if (facilityId != null) {
-            specification = specification.and((root, query, cb) -> cb.equal(root.get("facility").get("facilityId"), facilityId));
-        }
+        boolean applyFacility = facilityId != null;
+        Long facilityIdParam = applyFacility ? facilityId : -1L;
 
-        if (employeeId != null && !employeeId.isBlank()) {
-            specification = specification.and((root, query, cb) ->
-                    cb.equal(cb.upper(root.get("employeeId")), employeeId.trim().toUpperCase(Locale.ROOT))
-            );
-        }
+        boolean applyEmployee = normalizedEmployeeId != null;
+        String employeeIdParam = applyEmployee ? normalizedEmployeeId : "";
 
-        if (status != null && !status.isBlank()) {
-            BookingStatus parsedStatus = parseStatus(status);
-            specification = specification.and((root, query, cb) -> cb.equal(root.get("status"), parsedStatus));
-        }
+        boolean applyStatus = parsedStatus != null;
+        BookingStatus statusParam = applyStatus ? parsedStatus : BookingStatus.CONFIRMED;
 
-        if (bookingDate != null && !bookingDate.isBlank()) {
-            LocalDate parsedDate = parseBookingDate(bookingDate);
-            specification = specification.and((root, query, cb) -> cb.equal(root.get("bookingDate"), parsedDate));
-        }
+        boolean applyBookingDate = parsedDate != null;
+        LocalDate bookingDateParam = applyBookingDate ? parsedDate : LocalDate.now();
 
-        return bookingRepository.findAll(specification).stream()
-                .sorted(Comparator.comparing(Booking::getCreatedAt).reversed())
+        return bookingRepository.findAdminSearchBookings(
+                applyFacility,
+                facilityIdParam,
+                applyEmployee,
+                employeeIdParam,
+                applyStatus,
+                statusParam,
+                applyBookingDate,
+                bookingDateParam
+            ).stream()
+            .filter(booking -> isFacilityVisible(booking.getFacility()))
                 .map(this::toAdminSearchItem)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDtos.BookingSummaryResponse getBookingSummary(Long facilityId, String bookingDate) {
         if (facilityId == null) {
             throw new BadRequestException("facilityId is required for booking summary");
@@ -330,6 +343,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDtos.VerifyQrResponse verifyQrCode(String qrCode) {
         if (qrCode == null || qrCode.isBlank()) {
             return invalidQr("QR code is required");
@@ -472,6 +486,12 @@ public class BookingServiceImpl implements BookingService {
                 booking.getCancelledAt() == null ? null : booking.getCancelledAt().toString(),
                 booking.getQrCode()
         );
+    }
+
+    private boolean isFacilityVisible(Facility facility) {
+        return facility != null
+                && Boolean.TRUE.equals(facility.getStatus())
+                && Boolean.TRUE.equals(facility.getPublished());
     }
 
     private BookingDtos.VerifyQrResponse invalidQr(String message) {

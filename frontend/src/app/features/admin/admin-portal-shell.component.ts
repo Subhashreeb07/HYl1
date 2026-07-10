@@ -42,7 +42,7 @@ import { SessionService } from '../../core/services/session.service';
               alt="Hyland logo"
             />
             <p class="mt-3 text-base font-semibold text-slate-900">Admin Portal</p>
-            <p class="mt-4 text-sm text-slate-600">Operations, publishing, rules, and communication controls in one workspace.</p>
+            <p class="mt-4 text-sm text-slate-600">Manage operations, publishing, policy rules, and communication controls in one workspace.</p>
           </div>
 
           <nav class="space-y-1 text-sm">
@@ -68,7 +68,7 @@ import { SessionService } from '../../core/services/session.service';
 
           <div class="portal-search hidden w-[340px] items-center gap-2 px-3 py-2 md:flex">
             <mat-icon class="!text-[20px] text-slate-500">search</mat-icon>
-            <input class="w-full bg-transparent text-sm outline-none" placeholder="Search facilities, fields, rules..." />
+            <input class="w-full bg-transparent text-sm outline-none" placeholder="Search facilities, fields, and rules" />
           </div>
 
           <span class="flex-1"></span>
@@ -88,8 +88,8 @@ import { SessionService } from '../../core/services/session.service';
           </button>
 
           <mat-menu #profileMenu="matMenu">
-            <button mat-menu-item (click)="goEmployeeView()"><mat-icon>dashboard</mat-icon><span>Employee View</span></button>
-            <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon><span>Logout</span></button>
+            <button mat-menu-item (click)="goEmployeeView()"><mat-icon>dashboard</mat-icon><span>Employee Portal</span></button>
+            <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon><span>Sign Out</span></button>
           </mat-menu>
         </mat-toolbar>
 

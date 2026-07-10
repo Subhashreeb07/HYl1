@@ -36,7 +36,7 @@ export class AppComponent {
   ) {}
 
   logout(): void {
-    const confirmation = window.confirm('Do you want to logout?');
+    const confirmation = window.confirm('Do you want to sign out of the current session?');
     if (!confirmation) {
       return;
     }
@@ -51,12 +51,12 @@ export class AppComponent {
     this.authApi.logout(token).subscribe({
       next: () => {
         this.sessionService.clear();
-        this.toastService.show('Logged out successfully', 'success');
+        this.toastService.show('You have been signed out successfully.', 'success');
         this.router.navigateByUrl('/login');
       },
       error: () => {
         this.sessionService.clear();
-        this.toastService.show('Session cleared. Please login again.', 'info');
+        this.toastService.show('Your session has been cleared. Please sign in again.', 'info');
         this.router.navigateByUrl('/login');
       }
     });

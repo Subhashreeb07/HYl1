@@ -21,11 +21,11 @@ import { ToastService } from '../../core/services/toast.service';
     <section class="portal-panel p-6 shadow-none" *ngIf="spec() as data">
       <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Facility Booking</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Facility Request</p>
           <h2 class="mt-1 text-2xl font-bold text-slate-900">{{ data.facilityName }}</h2>
-          <p class="text-sm text-slate-600">Complete the form and submit your request through the Hyland employee portal.</p>
+          <p class="text-sm text-slate-600">Complete the form to submit your service request through the Hyland employee portal.</p>
         </div>
-        <a routerLink="/employee/dashboard" class="satori-secondary">Back</a>
+        <a routerLink="/employee/dashboard" class="satori-secondary">Return to Dashboard</a>
       </div>
 
       <form [formGroup]="form" (ngSubmit)="submit()" class="grid gap-4 md:grid-cols-2">
@@ -34,7 +34,7 @@ import { ToastService } from '../../core/services/toast.service';
         </ng-container>
 
         <div class="md:col-span-2 mt-2 flex items-center gap-3">
-          <button type="submit" class="rounded-full bg-[#183b63] px-5 py-2 text-sm font-semibold text-white hover:bg-[#11233f]">Submit Booking</button>
+          <button type="submit" class="rounded-full bg-[#183b63] px-5 py-2 text-sm font-semibold text-white hover:bg-[#11233f]">Submit Request</button>
           <span *ngIf="message()" class="text-sm font-medium text-emerald-700">{{ message() }}</span>
           <span *ngIf="error()" class="text-sm font-medium text-rose-700">{{ error() }}</span>
         </div>
@@ -76,7 +76,7 @@ export class FacilityBookingComponent implements OnInit {
         this.rebuildForm(data.fields);
       },
       error: () => {
-        this.error.set('Unable to load facility specification');
+        this.error.set('Facility specification could not be loaded at this time.');
       }
     });
   }
@@ -97,7 +97,7 @@ export class FacilityBookingComponent implements OnInit {
     const employeeId = this.sessionService.getEmployeeId();
     const facility = this.spec();
     if (!employeeId || !facility) {
-      this.error.set('Session expired. Please login again.');
+      this.error.set('Your session has expired. Please sign in again.');
       this.router.navigateByUrl('/login');
       return;
     }
@@ -111,7 +111,7 @@ export class FacilityBookingComponent implements OnInit {
       .filter((entry) => entry.value.length > 0);
 
     if (responses.length === 0) {
-      const message = 'Please provide at least one field value before submitting.';
+      const message = 'Please provide at least one field value before submitting your request.';
       this.error.set(message);
       this.toastService.show(message, 'error');
       return;
@@ -128,14 +128,14 @@ export class FacilityBookingComponent implements OnInit {
         next: (result) => {
           const successMessage = result.message?.trim().length
             ? `${result.message} (#${result.bookingId})`
-            : `Booking confirmed with id #${result.bookingId}`;
+            : `Booking request confirmed with ID #${result.bookingId}`;
           this.message.set(successMessage);
           this.toastService.show(successMessage, 'success');
           this.router.navigate(['/employee/bookings', result.bookingId]);
         },
         error: (err) => {
-          this.error.set(err?.error?.message ?? 'Booking failed');
-          this.toastService.show(this.error() ?? 'Booking failed', 'error');
+          this.error.set(err?.error?.message ?? 'The booking request was not submitted successfully.');
+          this.toastService.show(this.error() ?? 'The booking request was not submitted successfully.', 'error');
         }
       });
   }

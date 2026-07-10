@@ -9,6 +9,7 @@ import {
   NotificationChannel,
   BroadcastNotificationRequest,
   BroadcastNotificationResponse,
+  EmployeeRegistrationsResponse,
   NotificationHistoryResponse,
   NotificationOpsSummaryResponse,
   NotificationQueueItem,
@@ -56,6 +57,12 @@ export class AdminApiService {
 
     return this.http.get<BookingSummaryResponse>(`${this.baseUrl}/bookings/admin/summary`, {
       params,
+      headers: this.authHeader()
+    });
+  }
+
+  deleteBooking(bookingId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/bookings/${bookingId}`, {
       headers: this.authHeader()
     });
   }
@@ -196,6 +203,22 @@ export class AdminApiService {
 
   sendNotificationBroadcast(payload: BroadcastNotificationRequest): Observable<BroadcastNotificationResponse> {
     return this.http.post<BroadcastNotificationResponse>(`${this.baseUrl}/notifications/broadcast`, payload, {
+      headers: this.authHeader()
+    });
+  }
+
+  getEmployeeRegistrations(filters?: {
+    query?: string | null;
+    location?: string | null;
+    activeOnly?: boolean | null;
+  }): Observable<EmployeeRegistrationsResponse> {
+    let params = new HttpParams();
+    if (filters?.query) params = params.set('query', filters.query.trim());
+    if (filters?.location) params = params.set('location', filters.location.trim());
+    if (typeof filters?.activeOnly === 'boolean') params = params.set('activeOnly', String(filters.activeOnly));
+
+    return this.http.get<EmployeeRegistrationsResponse>(`${this.baseUrl}/reports/registrations`, {
+      params,
       headers: this.authHeader()
     });
   }

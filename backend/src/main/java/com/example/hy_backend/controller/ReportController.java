@@ -64,4 +64,14 @@ public class ReportController {
     ) {
         return ResponseEntity.ok(reportService.getBookingTrend(facilityId, fromDate, toDate));
     }
+
+    @GetMapping({"/registrations", "/registrations/", "/employee-registrations", "/employee-registrations/"})
+    @Operation(summary = "Get employee registrations for admin review")
+    public ResponseEntity<ReportDtos.EmployeeRegistrationsResponse> getEmployeeRegistrations(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Boolean activeOnly
+    ) {
+        return ResponseEntity.ok(reportService.getEmployeeRegistrations(query, location, activeOnly));
+    }
 }

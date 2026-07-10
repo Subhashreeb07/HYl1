@@ -28,6 +28,7 @@ com\example\hy_backend\dto\EmployeeDtos$HomeServiceCard.class
 com\example\hy_backend\dto\BookingDtos$BookingHistoryItem.class
 com\example\hy_backend\dto\NotificationDtos$HistoryResponse.class
 com\example\hy_backend\dto\BookingDtos$SubmitBookingRequest.class
+com\example\hy_backend\dto\ReportDtos$EmployeeRegistrationsResponse.class
 com\example\hy_backend\dto\EmployeeDtos$OfficeSummary.class
 com\example\hy_backend\model\AuditLog.class
 com\example\hy_backend\dto\EmployeeDtos$InvitationsResponse.class
@@ -124,6 +125,7 @@ com\example\hy_backend\dto\RuleDtos$RuleRequest.class
 com\example\hy_backend\model\BookingStatus.class
 com\example\hy_backend\dto\FieldDtos.class
 com\example\hy_backend\dto\RuleDtos$RuleResponse.class
+com\example\hy_backend\dto\ReportDtos$EmployeeRegistrationItem.class
 com\example\hy_backend\repository\NotificationTemplateRepository.class
 com\example\hy_backend\controller\BookingController.class
 com\example\hy_backend\dto\AuthDtos$LoginResponse.class

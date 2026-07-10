@@ -16,9 +16,9 @@ import { SessionService } from '../../core/services/session.service';
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Employee Activity</p>
             <h2 class="mt-1 text-3xl font-bold text-slate-900">Booking History</h2>
-            <p class="mt-1 text-sm text-slate-600">Review previous submissions and jump into the full booking detail view.</p>
+            <p class="mt-1 text-sm text-slate-600">Review prior submissions and access detailed booking records.</p>
           </div>
-          <a routerLink="/employee/dashboard" class="satori-secondary">Dashboard</a>
+          <a routerLink="/employee/dashboard" class="satori-secondary">Return to Dashboard</a>
         </div>
       </header>
 
@@ -49,11 +49,11 @@ import { SessionService } from '../../core/services/session.service';
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <a [routerLink]="['/employee/bookings', item.bookingId]" class="font-medium text-[#0f6cbd] hover:text-[#0b4f8a]">View</a>
+                  <a [routerLink]="['/employee/bookings', item.bookingId]" class="font-medium text-[#0f6cbd] hover:text-[#0b4f8a]">View Details</a>
                 </td>
               </tr>
               <tr *ngIf="items().length === 0">
-                <td class="px-6 py-8 text-slate-500" colspan="4">No bookings found.</td>
+                <td class="px-6 py-8 text-slate-500" colspan="4">No booking records are currently available.</td>
               </tr>
             </tbody>
           </table>

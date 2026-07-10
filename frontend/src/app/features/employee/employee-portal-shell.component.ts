@@ -36,17 +36,17 @@ import { SessionService } from '../../core/services/session.service';
             />
             <div class="hidden md:block">
               <p class="text-xs font-semibold uppercase tracking-[0.14em] text-[#0f6cbd]">Employee Portal</p>
-              <p class="text-sm font-semibold text-slate-900">Welcome back, {{ employeeDisplayName() }}</p>
+              <p class="text-sm font-semibold text-slate-900">Welcome, {{ employeeDisplayName() }}</p>
             </div>
           </div>
 
           <label class="portal-search flex min-w-[240px] flex-1 items-center gap-2 px-4 py-2">
             <mat-icon class="!text-[20px] text-slate-500">search</mat-icon>
-            <input class="w-full bg-transparent text-sm outline-none" placeholder="Search services, bookings, notifications" />
+            <input class="w-full bg-transparent text-sm outline-none" placeholder="Search services, bookings, and notifications" />
           </label>
 
           <div class="flex items-center gap-2 md:gap-3">
-            <button class="rounded-lg bg-[#0f6cbd] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0b4f8a]" (click)="goDashboard()">Book service</button>
+            <button class="rounded-lg bg-[#0f6cbd] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0b4f8a]" (click)="goDashboard()">Request Service</button>
             <button
               mat-icon-button
               class="!text-slate-600"
@@ -87,16 +87,16 @@ import { SessionService } from '../../core/services/session.service';
 
       <mat-menu #profileMenu="matMenu">
         <button mat-menu-item (click)="goProfile()"><mat-icon>badge</mat-icon><span>Profile</span></button>
-        <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon><span>Logout</span></button>
+        <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon><span>Sign Out</span></button>
       </mat-menu>
     </div>
   `
 })
 export class EmployeePortalShellComponent implements OnInit, OnDestroy {
   readonly navItems = [
-    { label: 'Home', icon: 'dashboard', link: '/employee/dashboard' },
+    { label: 'Overview', icon: 'dashboard', link: '/employee/dashboard' },
     { label: 'Notifications', icon: 'notifications', link: '/employee/notifications' },
-    { label: 'My bookings', icon: 'event_note', link: '/employee/history' },
+    { label: 'Booking Records', icon: 'event_note', link: '/employee/history' },
     { label: 'Profile', icon: 'badge', link: '/employee/profile' }
   ];
   readonly unreadNotifications = signal(0);

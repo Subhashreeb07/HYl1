@@ -18,8 +18,8 @@ import { ToastService } from '../../core/services/toast.service';
           <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d39c78] to-[#9a562d]">
             <span class="text-2xl">🏢</span>
           </div>
-          <h1 class="text-3xl font-bold text-[#1f2937]">Workplace Hub</h1>
-          <p class="mt-2 text-sm text-[#6b7280]">Secure enterprise access for the global workforce</p>
+          <h1 class="text-3xl font-bold text-[#1f2937]">Enterprise Access Portal</h1>
+          <p class="mt-2 text-sm text-[#6b7280]">Secure workforce access for enterprise operations</p>
         </div>
 
         <div class="mb-5 grid grid-cols-2 rounded-lg bg-[#f5eee8] p-1">
@@ -37,7 +37,7 @@ import { ToastService } from '../../core/services/toast.service';
             [ngClass]="mode() === 'SIGN_UP' ? 'bg-white text-[#7a4620] shadow-sm' : 'text-[#7c5a45]'"
             (click)="setMode('SIGN_UP')"
           >
-            First-time Sign Up
+            Sign Up
           </button>
         </div>
 
@@ -50,7 +50,7 @@ import { ToastService } from '../../core/services/toast.service';
               formControlName="name"
               [class.border-red-500]="isFieldInvalid('name')"
               class="mt-2 w-full rounded-lg border border-[#e5ddd5] bg-[#f9f7f5] px-4 py-3 text-sm text-[#1f2937] transition placeholder-[#9ca3af] focus:border-[#d39c78] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d39c78] focus:ring-opacity-20"
-              placeholder="Enter your full name"
+              placeholder="Enter your legal full name"
               [disabled]="isLoading()"
             />
           </div>
@@ -63,7 +63,7 @@ import { ToastService } from '../../core/services/toast.service';
               formControlName="employeeId"
               [class.border-red-500]="isFieldInvalid('employeeId')"
               class="mt-2 w-full rounded-lg border border-[#e5ddd5] bg-[#f9f7f5] px-4 py-3 text-sm text-[#1f2937] transition placeholder-[#9ca3af] focus:border-[#d39c78] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d39c78] focus:ring-opacity-20"
-              placeholder="Enter your employee ID"
+              placeholder="Enter your corporate employee ID"
               [disabled]="isLoading()"
             />
           </div>
@@ -76,7 +76,7 @@ import { ToastService } from '../../core/services/toast.service';
               formControlName="email"
               [class.border-red-500]="isFieldInvalid('email')"
               class="mt-2 w-full rounded-lg border border-[#e5ddd5] bg-[#f9f7f5] px-4 py-3 text-sm text-[#1f2937] transition placeholder-[#9ca3af] focus:border-[#d39c78] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d39c78] focus:ring-opacity-20"
-              placeholder="Enter your work email"
+              placeholder="Enter your corporate email address"
               [disabled]="isLoading()"
             />
           </div>
@@ -89,7 +89,7 @@ import { ToastService } from '../../core/services/toast.service';
                 type="text"
                 formControlName="department"
                 class="mt-2 w-full rounded-lg border border-[#e5ddd5] bg-[#f9f7f5] px-4 py-3 text-sm text-[#1f2937] transition placeholder-[#9ca3af] focus:border-[#d39c78] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d39c78] focus:ring-opacity-20"
-                placeholder="Workplace Operations"
+                placeholder="Enter your department"
                 [disabled]="isLoading()"
               />
             </div>
@@ -115,7 +115,7 @@ import { ToastService } from '../../core/services/toast.service';
               formControlName="password"
               [class.border-red-500]="isFieldInvalid('password')"
               class="mt-2 w-full rounded-lg border border-[#e5ddd5] bg-[#f9f7f5] px-4 py-3 text-sm text-[#1f2937] transition placeholder-[#9ca3af] focus:border-[#d39c78] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#d39c78] focus:ring-opacity-20"
-              [placeholder]="mode() === 'SIGN_IN' ? 'Enter your password' : 'Create a password'"
+              [placeholder]="mode() === 'SIGN_IN' ? 'Enter your password' : 'Create a secure password'"
               [disabled]="isLoading()"
             />
           </div>
@@ -126,7 +126,7 @@ import { ToastService } from '../../core/services/toast.service';
             class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
             role="alert"
           >
-            <div class="font-medium">Login Failed</div>
+            <div class="font-medium">Authentication Unsuccessful</div>
             <div class="text-xs mt-1">{{ error() }}</div>
           </div>
 
@@ -150,9 +150,7 @@ import { ToastService } from '../../core/services/toast.service';
         </form>
 
         <!-- Footer -->
-        <p class="mt-6 text-center text-xs text-[#6b7280]">
-          ⓘ For support, contact your system administrator
-        </p>
+        
       </div>
     </section>
   `
@@ -213,7 +211,7 @@ export class LoginComponent {
 
   private submitSignIn(): void {
     if (this.loginForm.invalid) {
-      this.toastService.show('Please fill in all required fields', 'error');
+      this.toastService.show('Please complete all required fields.', 'error');
       Object.keys(this.loginForm.controls).forEach((key) => {
         this.loginForm.get(key)?.markAsTouched();
       });
@@ -228,7 +226,7 @@ export class LoginComponent {
 
   private submitSignUp(): void {
     if (this.registerForm.invalid) {
-      this.toastService.show('Please complete all required sign-up fields', 'error');
+      this.toastService.show('Please complete all required registration fields.', 'error');
       Object.keys(this.registerForm.controls).forEach((key) => {
         this.registerForm.get(key)?.markAsTouched();
       });
@@ -250,13 +248,13 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading.set(false);
         this.sessionService.setFromLogin(response);
-        this.toastService.show(`Welcome, ${response.name}! Your account is ready.`, 'success');
+        this.toastService.show(`Welcome, ${response.name}. Your account has been provisioned successfully.`, 'success');
         this.registerForm.reset({ officeLocation: 'HYDERABAD' });
         this.router.navigateByUrl('/employee/dashboard');
       },
       error: (err) => {
         this.isLoading.set(false);
-        const message = err?.error?.message ?? 'Unable to create account. Please try again.';
+        const message = err?.error?.message ?? 'Account provisioning was unsuccessful. Please try again.';
         this.error.set(message);
         this.toastService.show(message, 'error');
       }
@@ -271,7 +269,7 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading.set(false);
         this.sessionService.setFromLogin(response);
-        this.toastService.show(`Welcome, ${response.name}!`, 'success');
+        this.toastService.show(`Welcome, ${response.name}.`, 'success');
         this.loginForm.reset();
 
         const dashboard = (response.role ?? '').toUpperCase() === 'ADMIN'
@@ -281,7 +279,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        const message = err?.error?.message ?? 'Invalid credentials. Please try again.';
+        const message = err?.error?.message ?? 'Authentication failed. Please verify your credentials and try again.';
         this.error.set(message);
         this.toastService.show(message, 'error');
       }

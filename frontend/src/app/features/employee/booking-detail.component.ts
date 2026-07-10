@@ -13,17 +13,17 @@ import { ToastService } from '../../core/services/toast.service';
     <section class="portal-panel mx-auto max-w-6xl p-6 shadow-none" *ngIf="detail() as d">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Booking Detail</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#0f6cbd]">Booking Details</p>
           <h2 class="mt-1 text-2xl font-bold text-slate-900">Booking #{{ d.bookingId }}</h2>
         </div>
         <div class="flex gap-2">
-          <a routerLink="/employee/history" class="satori-secondary">History</a>
+          <a routerLink="/employee/history" class="satori-secondary">Return to History</a>
           <button
             *ngIf="d.status !== 'CANCELLED'"
             class="rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
             (click)="cancel(d.bookingId)"
           >
-            Cancel Booking
+            Cancel Booking Request
           </button>
         </div>
       </div>
@@ -91,8 +91,8 @@ export class BookingDetailComponent implements OnInit {
         this.load(bookingId);
       },
       error: (err) => {
-        this.error.set(err?.error?.message ?? 'Unable to cancel booking');
-        this.toastService.show(this.error() ?? 'Unable to cancel booking', 'error');
+        this.error.set(err?.error?.message ?? 'The booking request could not be cancelled.');
+        this.toastService.show(this.error() ?? 'The booking request could not be cancelled.', 'error');
       }
     });
   }
@@ -103,7 +103,7 @@ export class BookingDetailComponent implements OnInit {
         this.detail.set(data);
       },
       error: () => {
-        this.error.set('Unable to load booking details');
+        this.error.set('Booking details could not be loaded at this time.');
       }
     });
   }

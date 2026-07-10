@@ -451,12 +451,12 @@ export class AdminNotificationsPageComponent implements OnInit {
       .replaceAll('{{bookingDate}}', '[Booking Date]')
       .replaceAll('{{deadlineTime}}', '[Deadline Time]')
       .replaceAll('{{office}}', '[Office Location]');
-    this.templatePreview.set(rendered || 'No template content to preview');
+    this.templatePreview.set(rendered || 'No template content is available for preview.');
   }
 
   async saveTemplate(): Promise<void> {
     if (this.templateForm.invalid) {
-      this.toastService.show('Fill all required template fields', 'error');
+      this.toastService.show('Please complete all required template fields before saving.', 'error');
       return;
     }
 
@@ -476,9 +476,9 @@ export class AdminNotificationsPageComponent implements OnInit {
       this.upsertTemplate(saved);
       this.selectedTemplateId.set(saved.templateId);
       this.templateForm.patchValue({ templateId: saved.templateId });
-      this.toastService.show('Template saved', 'success');
+      this.toastService.show('Notification template has been saved successfully.', 'success');
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to save template', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification template could not be saved.', 'error');
     }
   }
 
@@ -500,9 +500,9 @@ export class AdminNotificationsPageComponent implements OnInit {
       await firstValueFrom(this.adminApi.deleteNotificationTemplate(templateId));
       this.templates.update((items) => items.filter((item) => item.templateId !== templateId));
       this.createTemplate();
-      this.toastService.show('Template deleted', 'success');
+      this.toastService.show('Notification template has been removed successfully.', 'success');
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to delete template', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification template could not be removed.', 'error');
     }
   }
 
@@ -521,7 +521,7 @@ export class AdminNotificationsPageComponent implements OnInit {
 
   async addTrigger(): Promise<void> {
     if (this.triggerForm.invalid) {
-      this.toastService.show('Fill trigger configuration before saving', 'error');
+      this.toastService.show('Please complete the trigger configuration before saving.', 'error');
       return;
     }
 
@@ -546,9 +546,9 @@ export class AdminNotificationsPageComponent implements OnInit {
         copy[idx] = saved;
         return copy;
       });
-      this.toastService.show('Trigger saved', 'success');
+      this.toastService.show('Notification trigger has been saved successfully.', 'success');
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to save trigger', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification trigger could not be saved.', 'error');
     }
   }
 
@@ -566,16 +566,16 @@ export class AdminNotificationsPageComponent implements OnInit {
     try {
       await firstValueFrom(this.adminApi.deleteNotificationTrigger(trigger.triggerId));
       this.triggers.update((items) => items.filter((item) => item.triggerId !== trigger.triggerId));
-      this.toastService.show('Trigger deleted', 'success');
+      this.toastService.show('Notification trigger has been removed successfully.', 'success');
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to delete trigger', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification trigger could not be removed.', 'error');
     }
   }
 
   async testNotification(): Promise<void> {
     const templateId = this.templateForm.value.templateId;
     if (!templateId) {
-      this.toastService.show('Select or save a template first', 'error');
+      this.toastService.show('Please select or save a template before running a test notification.', 'error');
       return;
     }
 
@@ -596,45 +596,45 @@ export class AdminNotificationsPageComponent implements OnInit {
           }
         })
       );
-      this.toastService.show(response.message || 'Test notification submitted', response.success ? 'success' : 'info');
+      this.toastService.show(response.message || 'Test notification has been submitted.', response.success ? 'success' : 'info');
       if (response.preview?.body) {
         this.templatePreview.set(response.preview.body);
       }
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to test notification', 'error');
+      this.toastService.show(error?.error?.message ?? 'Test notification could not be submitted.', 'error');
     }
   }
 
   async previewBroadcast(): Promise<void> {
     if (this.broadcastForm.invalid) {
-      this.toastService.show('Fill required broadcast fields', 'error');
+      this.toastService.show('Please complete all required broadcast fields before previewing.', 'error');
       return;
     }
 
     try {
       const response = await firstValueFrom(this.adminApi.sendNotificationBroadcast(this.buildBroadcastPayload(true)));
       this.broadcastSummary.set(
-        `Preview: ${response.matchedEmployees} employees match. Sample: ${response.sampleEmployeeIds.join(', ') || 'none'}`
+        `Preview: ${response.matchedEmployees} employees matched. Sample: ${response.sampleEmployeeIds.join(', ') || 'none'}`
       );
-      this.toastService.show(response.message || 'Audience preview generated', 'info');
+      this.toastService.show(response.message || 'Audience preview has been generated.', 'info');
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to preview broadcast audience', 'error');
+      this.toastService.show(error?.error?.message ?? 'Broadcast audience preview could not be generated.', 'error');
     }
   }
 
   async sendBroadcast(): Promise<void> {
     if (this.broadcastForm.invalid) {
-      this.toastService.show('Fill required broadcast fields', 'error');
+      this.toastService.show('Please complete all required broadcast fields before sending.', 'error');
       return;
     }
 
     try {
       const response = await firstValueFrom(this.adminApi.sendNotificationBroadcast(this.buildBroadcastPayload(false)));
       this.broadcastSummary.set(`Queued ${response.notificationsCreated} notifications for ${response.matchedEmployees} employees.`);
-      this.toastService.show(response.message || 'Broadcast queued', 'success');
+      this.toastService.show(response.message || 'Broadcast has been queued successfully.', 'success');
       await this.loadHistory(1);
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to send broadcast', 'error');
+      this.toastService.show(error?.error?.message ?? 'Broadcast could not be sent.', 'error');
     }
   }
 
@@ -657,7 +657,7 @@ export class AdminNotificationsPageComponent implements OnInit {
       this.historyItems.set(response.items ?? []);
       this.historyTotal.set(response.total ?? 0);
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to load notification history', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification history could not be loaded.', 'error');
       this.historyItems.set([]);
       this.historyTotal.set(0);
     }
@@ -722,7 +722,7 @@ export class AdminNotificationsPageComponent implements OnInit {
         this.selectTemplate(data[0]);
       }
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to load templates', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification templates could not be loaded.', 'error');
       this.templates.set([]);
     }
   }
@@ -732,7 +732,7 @@ export class AdminNotificationsPageComponent implements OnInit {
       const data = await firstValueFrom(this.adminApi.getNotificationTriggers());
       this.triggers.set(data ?? []);
     } catch (error: any) {
-      this.toastService.show(error?.error?.message ?? 'Failed to load triggers', 'error');
+      this.toastService.show(error?.error?.message ?? 'Notification triggers could not be loaded.', 'error');
       this.triggers.set([]);
     }
   }

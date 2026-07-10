@@ -62,6 +62,27 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpec
 
     Optional<Booking> findByQrCode(String qrCode);
 
+        @Query("""
+            SELECT b
+            FROM Booking b
+            JOIN FETCH b.facility f
+                WHERE (:applyFacility = false OR f.facilityId = :facilityId)
+                  AND (:applyEmployee = false OR UPPER(b.employeeId) = :employeeId)
+                  AND (:applyStatus = false OR b.status = :status)
+                  AND (:applyBookingDate = false OR b.bookingDate = :bookingDate)
+            ORDER BY b.createdAt DESC
+            """)
+        List<Booking> findAdminSearchBookings(
+                @Param("applyFacility") boolean applyFacility,
+            @Param("facilityId") Long facilityId,
+                @Param("applyEmployee") boolean applyEmployee,
+            @Param("employeeId") String employeeId,
+                @Param("applyStatus") boolean applyStatus,
+            @Param("status") BookingStatus status,
+                @Param("applyBookingDate") boolean applyBookingDate,
+            @Param("bookingDate") LocalDate bookingDate
+        );
+
     long countByFacilityFacilityIdAndBookingDate(Long facilityId, LocalDate bookingDate);
 
     long countByBookingDate(LocalDate bookingDate);
